@@ -22,6 +22,7 @@ public abstract class GTJavaExtensionsInvoker {
     private static final Invoker regularArgsInvoker = new RegularArgsInvoker();
     private static final Invoker regularArgsWithObjectAsCollectionInvoker = new WithObjectAsCollectionInvoker(regularArgsInvoker);
     private static final Invoker withRealArgsAsArrayInvoker = new WithRealArgsAsArrayInvoker(regularArgsInvoker);
+    private static final Invoker withEmptyVarArgsInvoker = new WithEmptyVarArgsInvoker(regularArgsInvoker);
     private static final Invoker withRealArgsAsArrayAndObjectAsCollectionInvoker = new WithRealArgsAsArrayInvoker(regularArgsWithObjectAsCollectionInvoker);
 
     static final InvokeExecutor invokerExecutorMethod = new InvokerExecutorMethod();
@@ -36,6 +37,7 @@ public abstract class GTJavaExtensionsInvoker {
             regularArgsInvoker,
             regularArgsWithObjectAsCollectionInvoker,
             withRealArgsAsArrayInvoker,
+            withEmptyVarArgsInvoker,
             withRealArgsAsArrayAndObjectAsCollectionInvoker
     };
 
@@ -167,6 +169,32 @@ public abstract class GTJavaExtensionsInvoker {
             // create an empty array to get the type
             Object tmpArray = Array.newInstance(arrayType, 0);
             return baseInvoker.findMethod(jeClazz, methodName, object, new Object[]{tmpArray});
+        }
+    }
+
+    static class WithEmptyVarArgsInvoker implements Invoker {
+
+        private final Invoker baseInvoker;
+
+        WithEmptyVarArgsInvoker(Invoker baseInvoker) {
+            this.baseInvoker = baseInvoker;
+        }
+
+        public Object[] fixArgs(Object object, Object[] args) {
+            Object[] withVarArgs = addEmptyVarArg(object, args);
+            return baseInvoker.fixArgs(object, withVarArgs);
+        }
+
+        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
+            Object[] withVarArgs = addEmptyVarArg(object, args);
+            return baseInvoker.findMethod(jeClazz, methodName, object, withVarArgs);
+        }
+
+        protected Object[] addEmptyVarArg(Object object, Object[] args) {
+            Object[] withVarArgs = new Object[args.length + 1];
+            System.arraycopy(args, 0, withVarArgs, 0, args.length);
+            withVarArgs[withVarArgs.length - 1] = new Object[0];
+            return withVarArgs;
         }
     }
 
