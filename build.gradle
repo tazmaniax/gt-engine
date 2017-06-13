@@ -1,0 +1,30 @@
+apply plugin: 'java'
+
+defaultTasks 'test', 'jar'
+
+dependencies {
+  compile fileTree(dir: "jars", include: '*.jar')
+  compile('org.codehaus.groovy:groovy:2.4.11')
+  compile('commons-collections:commons-collections:3.2.2')
+  compile('commons-lang:commons-lang:2.6')
+  testCompile('org.easytesting:fest-assert:1.4')
+  testCompile('com.novocode:junit-interface:0.11')
+}
+
+compileJava {
+  options.debugOptions.debugLevel = "source,lines,vars"
+  options.encoding = 'UTF-8'
+}
+
+repositories {
+  mavenCentral()
+}
+
+task libs(type: Sync) {
+  from configurations.compile
+  from configurations.runtime
+  from configurations.testRuntime
+  into "$buildDir/lib"
+}
+
+compileJava.dependsOn libs
