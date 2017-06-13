@@ -4,7 +4,10 @@ import play.template2.compile.GTCompiler;
 import play.template2.compile.GTJavaCompileToClass;
 import play.template2.compile.GTPreCompiler;
 import play.template2.compile.GTPreCompilerFactory;
-import play.template2.exceptions.*;
+import play.template2.exceptions.GTCompilationException;
+import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
+import play.template2.exceptions.GTException;
+import play.template2.exceptions.GTTemplateNotFound;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -314,11 +317,10 @@ public class GTTemplateRepo {
             GTTemplateInstanceFactory templateInstanceFactory = new GTTemplateInstanceFactoryLive(parentClassLoader, compiledTemplate);
 
             ti = new TemplateInfo(templateLocation, templateInstanceFactory);
-        } catch(GTTemplateNotFound e) {
+        } catch(GTTemplateNotFound | GTCompilationExceptionWithSourceInfo e) {
             throw e;
-        } catch(GTCompilationExceptionWithSourceInfo e) {
-            throw e;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // Must only store it if no error occurs
             throw new GTCompilationException(e);
         }

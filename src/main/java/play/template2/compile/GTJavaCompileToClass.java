@@ -81,20 +81,24 @@ public class GTJavaCompileToClass {
             this.source = source;
         }
 
-        public char[] getFileName() {
+        @Override public char[] getFileName() {
             return fileName.toCharArray();
         }
 
-        public char[] getContents() {
+        @Override public char[] getContents() {
             return source.toCharArray();
         }
 
-        public char[] getMainTypeName() {
+        @Override public char[] getMainTypeName() {
             return typeName;
         }
 
-        public char[][] getPackageName() {
+        @Override public char[][] getPackageName() {
             return packageName;
+        }
+
+        @Override public boolean ignoreOptionalProblems() {
+            return false;
         }
     }
 
@@ -125,7 +129,7 @@ public class GTJavaCompileToClass {
         public CompiledClass[] compiledClasses;
 
 
-        public void acceptResult(CompilationResult result) {
+        @Override public void acceptResult(CompilationResult result) {
             // If error
             if (result.hasErrors()) {
                 for (IProblem problem: result.getErrors()) {
@@ -185,7 +189,7 @@ public class GTJavaCompileToClass {
          */
         INameEnvironment nameEnvironment = new INameEnvironment() {
 
-            public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
+            @Override public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
                 final StringBuffer result = new StringBuffer();
                 for (int i = 0; i < compoundTypeName.length; i++) {
                     if (i != 0) {
@@ -196,7 +200,7 @@ public class GTJavaCompileToClass {
                 return findType(result.toString());
             }
 
-            public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
+            @Override public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
                 final StringBuffer result = new StringBuffer();
                 for (int i = 0; i < packageName.length; i++) {
                     result.append(packageName[i]);
@@ -232,7 +236,7 @@ public class GTJavaCompileToClass {
                 }
             }
 
-            public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+            @Override public boolean isPackage(char[][] parentPackageName, char[] packageName) {
                 // Rebuild something usable
                 StringBuilder sb = new StringBuilder();
                 if (parentPackageName != null) {
@@ -261,7 +265,7 @@ public class GTJavaCompileToClass {
                 return isPackage;
             }
 
-            public void cleanup() {
+            @Override public void cleanup() {
             }
         };
 
