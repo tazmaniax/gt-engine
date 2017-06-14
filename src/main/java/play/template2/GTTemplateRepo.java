@@ -264,7 +264,7 @@ public class GTTemplateRepo {
         final File folder = file.getParentFile();
         final String simpleFilename = file.getName().substring(0, file.getName().length() - 6); // remove ".class"
         File[] allClassFiles = folder.listFiles( new FilenameFilter() {
-            public boolean accept(File file, String s) {
+            @Override public boolean accept(File file, String s) {
                 return s.startsWith( simpleFilename);
             }
         });

@@ -29,7 +29,7 @@ public class GTTemplateInstanceFactoryLive extends GTTemplateInstanceFactory {
         public CL(ClassLoader parent, GTJavaCompileToClass.CompiledClass[] compiledClasses) {
             this.parent = parent;
 
-            this.classNames = new HashSet<String>(compiledClasses.length);
+            this.classNames = new HashSet<>(compiledClasses.length);
             this.resource2bytes = new HashMap<String, byte[]>(compiledClasses.length);
 
             for (GTJavaCompileToClass.CompiledClass cp : compiledClasses) {
