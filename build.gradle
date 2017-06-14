@@ -6,6 +6,7 @@ dependencies {
   compile fileTree(dir: "jars", include: '*.jar')
   compile('org.codehaus.groovy:groovy:2.4.11')
   compile('commons-collections:commons-collections:3.2.2')
+  compile('commons-io:commons-io:2.5')
   compile('commons-lang:commons-lang:2.6')
   testCompile('org.easytesting:fest-assert:1.4')
   testCompile('com.novocode:junit-interface:0.11')
