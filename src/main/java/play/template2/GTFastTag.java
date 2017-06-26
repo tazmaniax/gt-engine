@@ -15,6 +15,7 @@ public abstract class GTFastTag implements GTFastTagResolver {
     protected GTFastTag() {
     }
 
+    @Override 
     public String resolveFastTag(String tagName) {
 
         // check this class is annotated with @TagNamespace
@@ -46,8 +47,7 @@ public abstract class GTFastTag implements GTFastTagResolver {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public static @interface TagNamespace {
-
+    public @interface TagNamespace {
         String value() default "";
     }
 

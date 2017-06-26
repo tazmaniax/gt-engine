@@ -5,7 +5,7 @@ import play.template2.GTJavaBase;
 import play.template2.GTTemplateLocation;
 
 public abstract class GTJavaBaseTesterImpl extends GTJavaBase {
-    public GTJavaBaseTesterImpl(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation) {
+    protected GTJavaBaseTesterImpl(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation) {
         super(groovyClass, templateLocation);
     }
 

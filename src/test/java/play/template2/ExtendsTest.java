@@ -12,21 +12,20 @@ public class ExtendsTest {
 
     // when tag uses extends, it should be as if the template calling the template extended it
     // the last one using extends wins
-    // same behavour if a tag calls a tag
-
+    // same behaviour if a tag calls a tag
 
     // include and render behaves the same way as tags
 
     @Test
-    public void testExtends() throws Exception {
-                // first try with unix linefeeds
+    public void testExtends() {
+                // first try with unix line feeds
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
 
-        Map<String,Object> args = new HashMap<String,Object>();
+        Map<String,Object> args = new HashMap<>();
 
         GTJavaBase t = tr.getTemplateInstance(new GTTemplateLocation("templateUsingExtendsAndTag.txt"));
         t.renderTemplate(args);

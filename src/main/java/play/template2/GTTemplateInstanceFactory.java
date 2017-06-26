@@ -5,9 +5,8 @@ import play.template2.exceptions.GTException;
 public abstract class GTTemplateInstanceFactory {
 
     public GTJavaBase create(GTTemplateRepo templateRepo) {
-        GTJavaBase templateInstance;
         try {
-            templateInstance = (GTJavaBase)getTemplateClass().newInstance();
+            GTJavaBase templateInstance = getTemplateClass().newInstance();
             // Must tell the template Instance where the current templateRepo is - needed when processing #{extends} and custom tags
             templateInstance.templateRepo = templateRepo;
             return templateInstance;

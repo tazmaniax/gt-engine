@@ -10,7 +10,6 @@ import play.template2.exceptions.GTException;
 import play.template2.exceptions.GTTemplateNotFound;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,10 +21,8 @@ public class GTTemplateRepo {
     public final boolean preCompiledMode;
     public final File folderToDumpClassesIn;
 
-
-
-    private Map<String, TemplateInfo> loadedTemplates = new ConcurrentHashMap<String, TemplateInfo>();
-    protected Map<String, TemplateInfo> classname2TemplateInfo = new ConcurrentHashMap<String, TemplateInfo>();
+    private Map<String, TemplateInfo> loadedTemplates = new ConcurrentHashMap<>();
+    protected Map<String, TemplateInfo> classname2TemplateInfo = new ConcurrentHashMap<>();
 
 
     public static class TemplateInfo {
@@ -202,9 +199,7 @@ public class GTTemplateRepo {
         }
 
         // already compile and unchanged - lets return the template instance
-        GTJavaBase templateInstance = ti.templateInstanceFactory.create(this);
-
-        return templateInstance;
+        return ti.templateInstanceFactory.create(this);
     }
 
     // If running in precompiled mode, we look in parent classloader,
@@ -263,11 +258,7 @@ public class GTTemplateRepo {
         // found the main template class file - must load all classes for this template - which all starts with the same name..
         final File folder = file.getParentFile();
         final String simpleFilename = file.getName().substring(0, file.getName().length() - 6); // remove ".class"
-        File[] allClassFiles = folder.listFiles( new FilenameFilter() {
-            @Override public boolean accept(File file, String s) {
-                return s.startsWith( simpleFilename);
-            }
-        });
+        File[] allClassFiles = folder.listFiles((file1, s) -> s.startsWith( simpleFilename));
 
         GTJavaCompileToClass.CompiledClass[] compiledClasses = new GTJavaCompileToClass.CompiledClass[allClassFiles.length];
         int i=0;

@@ -4,9 +4,7 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MetaMethod;
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import play.template2.exceptions.GTException;
 import play.template2.exceptions.GTRuntimeExceptionForwarder;
-import play.template2.exceptions.GTTemplateRuntimeException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +28,7 @@ public abstract class GTJavaExtensionsInvoker {
 
     static final RealMethodInvoker realMethodInvoker = new RealMethodInvoker();
 
-    static ConcurrentMap<InvocationSignatur, InvocationInfo> invocationInfoMap = new ConcurrentHashMap<InvocationSignatur, InvocationInfo>();
+    static ConcurrentMap<InvocationSignature, InvocationInfo> invocationInfoMap = new ConcurrentHashMap<>();
 
     private static final Invoker[] invokers = new Invoker[]{
             regularArgsInvoker,
@@ -40,8 +38,8 @@ public abstract class GTJavaExtensionsInvoker {
     };
 
     // Can be wrapping both java Method and groovy MetaMethod 
-    static interface WrappedMethod {
-        public Object invoke(Object o, Object[] args) throws Exception;
+    interface WrappedMethod {
+        Object invoke(Object o, Object[] args) throws Exception;
     }
 
     static class WrappedJavaMethod implements WrappedMethod {
@@ -76,18 +74,17 @@ public abstract class GTJavaExtensionsInvoker {
         }
     }
 
-    static interface Invoker {
-
+    interface Invoker {
         // generates args that should be used when invoking this kind
-        public Object[] fixArgs(Object object, Object[] args);
+        Object[] fixArgs(Object object, Object[] args);
         // finds a method on jeClass that matches this kind
-        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args);
+        WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args);
     }
 
 
 
     static class RegularArgsInvoker implements Invoker {
-        public Object[] fixArgs(Object object, Object[] args) {
+        @Override public Object[] fixArgs(Object object, Object[] args) {
             Object[] jeArgs = new Object[args.length+1];
             jeArgs[0] = object;
             for (int i=0; i < args.length; i++) {
@@ -99,7 +96,7 @@ public abstract class GTJavaExtensionsInvoker {
             return jeArgs;
         }
 
-        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
+        @Override public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
             Class[] jeArgsTypes = new Class[args.length+1];
             jeArgsTypes[0] = object.getClass();
             for (int i=0; i < args.length; i++) {
@@ -125,22 +122,22 @@ public abstract class GTJavaExtensionsInvoker {
             this.baseInvoker = baseInvoker;
         }
 
-        public Object[] fixArgs(Object object, Object[] args) {
+        @Override public Object[] fixArgs(Object object, Object[] args) {
             // create list from object-array
 
             int arrayLength = Array.getLength(object);
-            Collection objectCollection = new ArrayList(arrayLength);
+            Collection<Object> objectCollection = new ArrayList<>(arrayLength);
             for ( int i=0; i < arrayLength; i++) {
                 objectCollection.add( Array.get(object,i));
             }
             return baseInvoker.fixArgs(objectCollection, args);
         }
 
-        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
+        @Override public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
             if ( !object.getClass().isArray()) {
                 return null;
             }
-            return baseInvoker.findMethod(jeClazz, methodName, new ArrayList(0), args);
+            return baseInvoker.findMethod(jeClazz, methodName, new ArrayList<>(0), args);
         }
     }
 
@@ -152,7 +149,7 @@ public abstract class GTJavaExtensionsInvoker {
             this.baseInvoker = baseInvoker;
         }
 
-        public Object[] fixArgs(Object object, Object[] args) {
+        @Override public Object[] fixArgs(Object object, Object[] args) {
             Class arrayType = args[0].getClass();
 
             // create new args-array with the array-type == the type of the first element in the real args
@@ -164,7 +161,7 @@ public abstract class GTJavaExtensionsInvoker {
             return baseInvoker.fixArgs(object, new Object[]{argsArray});
         }
 
-        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
+        @Override public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
             if ( args.length == 0) {
                 return null;
             }
@@ -177,11 +174,11 @@ public abstract class GTJavaExtensionsInvoker {
     }
 
     static class RealMethodInvoker implements Invoker {
-        public Object[] fixArgs(Object object, Object[] args) {
+        @Override public Object[] fixArgs(Object object, Object[] args) {
             return args;
         }
 
-        public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
+        @Override public WrappedMethod findMethod(Class jeClazz, String methodName, Object object, Object[] args) {
             Class[] argsTypes = new Class[args.length];
             for (int i=0; i < args.length; i++) {
                 Object arg = args[i];
@@ -224,39 +221,39 @@ public abstract class GTJavaExtensionsInvoker {
         }
     }
 
-    static interface InvokeExecutor {
-        public Object doIt( WrappedMethod m, String methodName, Object object, Object[] args) throws Exception;
+    interface InvokeExecutor {
+        Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception;
     }
 
 
     static class InvokerExecutorMethod implements InvokeExecutor {
-        public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
+        @Override public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
             return m.invoke(null, args);
         }
     }
 
     static class InvokerExecutorRealMethod implements InvokeExecutor {
-        public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
+        @Override public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
             return m.invoke(object, args);
         }
     }
 
     static class InvokeExecutorGroovySupport implements InvokeExecutor {
 
-        public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
+        @Override public Object doIt(WrappedMethod m, String methodName, Object object, Object[] args) throws Exception {
             // This is a special groovy object - must special case
             GroovyObjectSupport gos = (GroovyObjectSupport)object;
             return gos.invokeMethod(methodName, args);
         }
     }
 
-    static class InvocationSignatur {
+    static class InvocationSignature {
         private final String methodName;
         private final Class objectType;
         private final Class[] argTypes;
         private final int hash;
 
-        InvocationSignatur(String methodName, Object object, Object[] args) {
+        InvocationSignature(String methodName, Object object, Object[] args) {
             this.methodName = methodName;
             this.objectType = object.getClass();
             this.argTypes = new Class[args.length];
@@ -275,7 +272,7 @@ public abstract class GTJavaExtensionsInvoker {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            InvocationSignatur that = (InvocationSignatur) o;
+            InvocationSignature that = (InvocationSignature) o;
 
             if ( hash != that.hash) {
                 return false;
@@ -323,10 +320,10 @@ public abstract class GTJavaExtensionsInvoker {
 
         try {
 
-            InvocationSignatur invocationSignatur = new InvocationSignatur(methodName, object, args);
+            InvocationSignature invocationSignatur = new InvocationSignature(methodName, object, args);
 
             // have we resolved this before?
-            InvocationInfo invocationInfo = null;
+            InvocationInfo invocationInfo;
             invocationInfo = invocationInfoMap.get(invocationSignatur);
 
             if ( invocationInfo != null ) {
@@ -366,8 +363,7 @@ public abstract class GTJavaExtensionsInvoker {
 
             if (invokerExecutor != null) {
                 invocationInfoMap.putIfAbsent(invocationSignatur, new InvocationInfo(m, methodName, invokerExecutor, invoker));
-                Object res = invokerExecutor.doIt(m, methodName, object, (invoker!=null ? invoker.fixArgs(object, args) : args));
-                return res;
+                return invokerExecutor.doIt(m, methodName, object, (invoker!=null ? invoker.fixArgs(object, args) : args));
             } else {
                 throw new NoSuchMethodException(methodName);
             }

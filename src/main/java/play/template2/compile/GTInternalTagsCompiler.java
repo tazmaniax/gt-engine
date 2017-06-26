@@ -11,7 +11,7 @@ public class GTInternalTagsCompiler {
 
         // Check if we have a method named 'tag_tagName'
 
-        Method tagMethod = null;
+        Method tagMethod;
         try {
             tagMethod = getClass().getMethod("tag_"+tagName, String.class, String.class, GTPreCompiler.SourceContext.class, Integer.TYPE);
         } catch( Exception e) {

@@ -39,7 +39,7 @@ public class GTTemplateRepoBuilder {
 
         //public GTTemplateRepo templateRepo;
 
-        public GTPreCompiler createCompiler(GTTemplateRepo templateRepo) {
+        @Override public GTPreCompiler createCompiler(GTTemplateRepo templateRepo) {
             return new GTPreCompiler(templateRepo) {
                 @Override
                 public Class<? extends GTJavaBase> getJavaBaseClass() {
@@ -54,7 +54,7 @@ public class GTTemplateRepoBuilder {
     private GTTemplateRepo createTemplateRepo(final GTPreCompilerFactory preCompilerFactory) {
 
         GTJavaCompileToClass.typeResolver = new GTTypeResolver() {
-            public byte[] getTypeBytes(String name) {
+            @Override public byte[] getTypeBytes(String name) {
 
                 try {
                     InputStream in = getClass().getClassLoader().getResourceAsStream( name.replaceAll("\\.", "/") + ".class");
@@ -151,7 +151,7 @@ public class GTTemplateRepoBuilder {
         } else {
             // default empty resolver
             GTGroovyPimpTransformer.gtJavaExtensionMethodResolver = new GTJavaExtensionMethodResolver() {
-                public Class findClassWithMethod(String methodName) {
+                @Override public Class findClassWithMethod(String methodName) {
                     return null;
                 }
             };

@@ -15,8 +15,6 @@ import java.util.*;
 public class GTTemplateInstanceFactoryLive extends GTTemplateInstanceFactory {
 
     private final Class<? extends GTJavaBase> templateClass;
-    private final GTCompiler.CompiledTemplate compiledTemplate;
-    private final CL cl;
 
     public static ProtectionDomain protectionDomain;
 
@@ -30,11 +28,11 @@ public class GTTemplateInstanceFactoryLive extends GTTemplateInstanceFactory {
             this.parent = parent;
 
             this.classNames = new HashSet<>(compiledClasses.length);
-            this.resource2bytes = new HashMap<String, byte[]>(compiledClasses.length);
+            this.resource2bytes = new HashMap<>(compiledClasses.length);
 
             for (GTJavaCompileToClass.CompiledClass cp : compiledClasses) {
                 classNames.add(cp.classname);
-                defineClass(cp.classname, cp.bytes, 0, cp.bytes.length, GTTemplateInstanceFactoryLive.protectionDomain);
+                defineClass(cp.classname, cp.bytes, 0, cp.bytes.length, protectionDomain);
                 String resourceName = cp.classname.replace(".", "/") + ".class";
                 resource2bytes.put(resourceName, cp.bytes);
             }
@@ -67,33 +65,12 @@ public class GTTemplateInstanceFactoryLive extends GTTemplateInstanceFactory {
             if ( !classNames.contains(s)) return parent.getResources(s);
             return super.getResources(s);
         }
-
-        @Override
-        public void setDefaultAssertionStatus(boolean b) {
-            super.setDefaultAssertionStatus(b);
-        }
-
-        @Override
-        public void setPackageAssertionStatus(String s, boolean b) {
-            super.setPackageAssertionStatus(s, b);
-        }
-
-        @Override
-        public void setClassAssertionStatus(String s, boolean b) {
-            super.setClassAssertionStatus(s, b);
-        }
-
-        @Override
-        public void clearAssertionStatus() {
-            super.clearAssertionStatus();
-        }
     }
 
     public GTTemplateInstanceFactoryLive(ClassLoader parentClassLoader, GTCompiler.CompiledTemplate compiledTemplate) {
-        this.compiledTemplate = compiledTemplate;
-        this.cl = new CL(parentClassLoader, compiledTemplate.compiledJavaClasses);
+        CL cl = new CL(parentClassLoader, compiledTemplate.compiledJavaClasses);
         try {
-            this.templateClass = (Class<? extends GTJavaBase>)cl.loadClass(compiledTemplate.templateClassName);
+            this.templateClass = (Class<? extends GTJavaBase>) cl.loadClass(compiledTemplate.templateClassName);
         } catch (Exception e) {
             throw new GTException("Error creating template class instance", e);
         }

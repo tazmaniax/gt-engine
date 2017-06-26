@@ -3,7 +3,6 @@ package play.template2;
 import org.junit.Test;
 import play.template2.compile.GTJavaBaseTesterImpl;
 import play.template2.compile.GTPreCompiler;
-import play.template2.compile.GTPreCompilerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,14 +48,14 @@ public class ReverseRoutingTest {
     }
 
     @Test
-    public void testRegularActionPrinter() throws Exception {
+    public void testRegularActionPrinter() {
         TemplateSourceRenderer r = new TemplateSourceRenderer(
                 new GTTemplateRepoBuilder()
                         .withPreCompilerFactory( new ReverseRoutingGTPreCompilerFactory())
                         .build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
-        final ArrayList<String> list = new ArrayList<String>();
+        Map<String, Object> args = new HashMap<>();
+        final ArrayList<String> list = new ArrayList<>();
         args.put("list", list);
         args.put("e", "X");
 
@@ -66,15 +65,15 @@ public class ReverseRoutingTest {
     }
 
     @Test
-    public void testRegularActionPrinterAsTagArgs() throws Exception {
+    public void testRegularActionPrinterAsTagArgs() {
         TemplateSourceRenderer r = new TemplateSourceRenderer(
                 new GTTemplateRepoBuilder()
                         .withTemplateRootFolder(new File("src/test/resources/template_root/"))
                         .withPreCompilerFactory(new ReverseRoutingGTPreCompilerFactory())
                         .build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
-        final ArrayList<String> list = new ArrayList<String>();
+        Map<String, Object> args = new HashMap<>();
+        ArrayList<String> list = new ArrayList<>();
         args.put("list", list);
         args.put("e", "X");
 

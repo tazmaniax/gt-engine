@@ -51,6 +51,7 @@ public class GTGroovyVariableScopeTransformer implements ASTTransformation {
         }
     }
 
+    @Override 
     public void visit(ASTNode[] nodes, SourceUnit source) {
             for (ClassNode classNode : source.getAST().getClasses() ) {
                 classNode.visitContents(new Trans(source));

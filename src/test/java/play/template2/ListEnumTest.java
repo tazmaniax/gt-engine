@@ -12,10 +12,10 @@ public class ListEnumTest {
     public enum MyEnum {A,B,C};
 
     @Test
-    public void testListingEnums() throws Exception {
+    public void testListingEnums() {
         TemplateSourceRenderer r = new TemplateSourceRenderer(new GTTemplateRepoBuilder().build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
 
         assertThat(r.renderSrc("#{list play.template2.ListEnumTest.MyEnum, as: 'e'}${e}#{/list}", args)).isEqualTo("ABC");
     }

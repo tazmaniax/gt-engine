@@ -9,7 +9,7 @@ import java.util.List;
 
 public class GTRenderingResult {
 
-    protected List<StringWriter> allOuts = new ArrayList<StringWriter>();
+    protected List<StringWriter> allOuts = new ArrayList<>();
 
     public GTRenderingResult() {
     }
@@ -30,7 +30,7 @@ public class GTRenderingResult {
 
     /**
      * returns the rendering-output as string, but remember:
-     * when dumping output to an outputstream, it is better to use writeOutput()
+     * when dumping output to an output stream, it is better to use writeOutput()
      *
      * @return the rendering-output as string
      */

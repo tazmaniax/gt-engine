@@ -9,11 +9,9 @@ public static void tag_testFastTag(GTJavaBase template, Map<String, Object> args
         template.insertOutput( content.render());
         template.out.append("[from testFastTag after]");
     }
-
- 
  */
 public interface GTFastTagResolver {
 
     // if fastTag is valid, this method returns full method-name for a static method..
-    public String resolveFastTag(String tagName);
+    String resolveFastTag(String tagName);
 }

@@ -8,7 +8,7 @@ public class GTTemplateInstanceFactoryRegularClass extends GTTemplateInstanceFac
         this.templateClass = templateClass;
     }
 
-    public Class<? extends GTJavaBase> getTemplateClass() {
+    @Override public Class<? extends GTJavaBase> getTemplateClass() {
         return templateClass;
     }
 }

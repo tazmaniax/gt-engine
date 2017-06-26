@@ -14,7 +14,7 @@ public class VariableVisabilityTest {
     public void testThatVariablesNotLeakbetweenScriptRuns() throws  Exception {
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
         
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "xxx");
 
         assertThat(r.renderSrc("${a}", args)).isEqualTo("");
@@ -24,12 +24,12 @@ public class VariableVisabilityTest {
     }
 
     @Test
-    public void testThatTagArgsToFirstTagIsNotAvailableInCalledTag() throws Exception {
+    public void testThatTagArgsToFirstTagIsNotAvailableInCalledTag() {
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
                 .build();
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         assertThat( sr.renderSrc("#{tagUsingSimpleTag 'data'/}", args) ).isEqualTo("data[from tag: ][from tag: argSpecified]");
 
 

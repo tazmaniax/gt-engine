@@ -15,7 +15,7 @@ public class GTExceptionFixer {
         this.templateRepo = templateRepo;
     }
 
-    // converts stacktrace-elements referring to generated template code into pointin to the correct template-file and line
+    // converts stacktrace-elements referring to generated template code into pointing to the correct template-file and line
 
     protected static class FixedStackTrace {
         public final GTTemplateRepo.TemplateInfo errorTI;
@@ -38,7 +38,7 @@ public class GTExceptionFixer {
         boolean haveFoundErrorLocation = false;
         int errorLine = 0;
 
-        List<StackTraceElement> newSElist = new ArrayList<StackTraceElement>();
+        List<StackTraceElement> newSElist = new ArrayList<>();
         for ( StackTraceElement se : seList) {
             StackTraceElement orgSe = se;
             String appClassName = null;
@@ -50,7 +50,7 @@ public class GTExceptionFixer {
             if ( clazz.startsWith(GTPreCompiler.generatedPackageName)) {
                 // This is a generated template class
 
-                int i = clazz.indexOf("$");
+                int i = clazz.indexOf('$');
                 if ( i > 0 ) {
                     clazz = clazz.substring(0, i);
                 }
@@ -65,7 +65,7 @@ public class GTExceptionFixer {
 
                 ti = templateRepo.classname2TemplateInfo.get(clazz);
 
-                if (se.getMethodName().equals("_renderTemplate")) {
+                if ("_renderTemplate".equals(se.getMethodName())) {
                     se = null;
                 } else if (ti != null) {
 
@@ -173,7 +173,7 @@ public class GTExceptionFixer {
 
         FixedStackTrace fixedStackTrace = fixStackTrace( seList);
 
-        GTException newE = null;
+        GTException newE;
         
         if ( e instanceof GTRuntimeExceptionWithSourceInfo) {
             newE = (GTRuntimeExceptionWithSourceInfo)e;

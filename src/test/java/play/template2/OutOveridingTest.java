@@ -10,10 +10,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class OutOveridingTest {
 
     @Test
-    public void testLegacyOutOverriding() throws Exception {
+    public void testLegacyOutOverriding() {
         TemplateSourceRenderer sr = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "xxx");
 
         assertThat( sr.renderSrc("a%{ print 'b' }%c", args) ).isEqualTo("abc");

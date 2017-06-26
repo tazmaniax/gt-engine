@@ -8,6 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import static java.util.Arrays.binarySearch;
+
 public class GTInternalFastTags extends GTFastTag {
 
 
@@ -131,7 +133,7 @@ public class GTInternalFastTags extends GTFastTag {
         }
 
         GTJavaBase newTemplate = template.templateRepo.getTemplateInstance( templateLocation );
-        Map<String, Object> newArgs = new HashMap<String, Object>();
+        Map<String, Object> newArgs = new HashMap<>();
         newArgs.putAll(args);
         newArgs.put("_isInclude", true);
 
@@ -159,7 +161,7 @@ public class GTInternalFastTags extends GTFastTag {
         // if the org value of the key, is null, we should restore the value after we have rendered.
         Map<String, Object> vars = (Map<String, Object>)args.get("vars");
 
-        Set<String> propertiesToResetToNull = new HashSet<String>();
+        Set<String> propertiesToResetToNull = new HashSet<>();
 
         if ( vars != null) {
             for (Map.Entry<String, Object> e : vars.entrySet()) {
@@ -214,7 +216,7 @@ public class GTInternalFastTags extends GTFastTag {
         GTRenderingResult renderingResult = _content.render();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         renderingResult.writeOutput(out, "utf-8");
-        String result = null;
+        String result;
         try {
             result = new String(out.toByteArray(), "utf-8");
         } catch( UnsupportedEncodingException e) {
@@ -236,7 +238,13 @@ public class GTInternalFastTags extends GTFastTag {
         Object value = args.get("arg");
         Object selectedValue = GTTagContext.singleton.parent("select").getData().get("selected");
         boolean selected = selectedValue != null && value != null && (selectedValue.toString()).equals(value.toString());
-        template.out.append("<option value=\"" + (value == null ? "" : value) + "\" " + (selected ? "selected=\"selected\"" : "") + " " + serialize(args, "selected", "value") + ">");
+        template.out.append("<option value=\"")
+            .append(String.valueOf(value == null ? "" : value))
+            .append("\" ")
+            .append(selected ? "selected=\"selected\"" : "")
+            .append(" ")
+            .append(serialize(args, "selected", "value"))
+            .append(">");
         template.insertOutput( _content.render());
         template.out.append("</option>");
     }
@@ -256,7 +264,7 @@ public class GTInternalFastTags extends GTFastTag {
         for (Object o : args.keySet()) {
             String attr = o.toString();
             String value = args.get(o) == null ? "" : args.get(o).toString();
-            if (Arrays.binarySearch(unless, attr) < 0 && !attr.equals("arg")) {
+            if (binarySearch(unless, attr) < 0 && !"arg".equals(attr)) {
                 attrs.append(attr);
                 attrs.append("=\"");
                 attrs.append(value);

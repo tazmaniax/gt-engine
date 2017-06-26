@@ -11,11 +11,11 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
-// Not specifying genereric type of Closure. This should be done when compiling against groovy 1.8.4, but then it fails
+// Not specifying generic type of Closure. This should be done when compiling against groovy 1.8.4, but then it fails
 // when using groovy 1.7.0 and OpenJDK Runtime Environment (IcedTea6 1.11pre) (6b23~pre11-0ubuntu1.11.10.1)
 public class GTContentRendererFakeClosure extends Closure {
     
-    private static ThreadLocal<Set<PrintWriter>> currentSeenCustomOuts = new ThreadLocal<Set<PrintWriter>>();
+    private static final ThreadLocal<Set<PrintWriter>> currentSeenCustomOuts = new ThreadLocal<>();
 
     public final GTContentRenderer contentRenderer;
     private final GTJavaBase template;
@@ -28,7 +28,7 @@ public class GTContentRendererFakeClosure extends Closure {
 
     public static void initRendering() {
         // Must clear currentSeenCustomOuts for this thread
-        currentSeenCustomOuts.set( new HashSet<PrintWriter>());
+        currentSeenCustomOuts.set(new HashSet<>());
     }
     
     protected static Set<PrintWriter> getSeenCustomOuts() {
@@ -42,8 +42,7 @@ public class GTContentRendererFakeClosure extends Closure {
 
     @Override
     public String toString() {
-        String s = renderToString();
-        return s;
+        return renderToString();
     }
 
     @Override

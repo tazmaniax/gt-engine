@@ -3,11 +3,13 @@ package play.template2;
 import org.junit.Test;
 
 import java.util.Map;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class GTFastTagTest {
     @Test
-    public void testResolveFastTag() throws Exception {
+    public void testResolveFastTag() {
         GTFastTag ft = new TestTags();
         assertEquals( "play.template2.TestTags.tag_tag1", ft.resolveFastTag("tag1"));
         assertNull( ft.resolveFastTag("tag2"));

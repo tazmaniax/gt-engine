@@ -33,7 +33,7 @@ public class JavaExtensionTest {
     }
 
     @Test
-    public void testJavaExtensions() throws Exception {
+    public void testJavaExtensions() {
         TemplateSourceRenderer sr = createSourceRenderer();
 
         Map<String, Object> args = new HashMap<String, Object>();
@@ -82,7 +82,7 @@ public class JavaExtensionTest {
     }
 
     @Test
-    public void testStaticNameClashProblem() throws Exception {
+    public void testStaticNameClashProblem() {
         TemplateSourceRenderer sr = createSourceRenderer();
 
         Map<String, Object> args = new HashMap<String, Object>();
@@ -107,7 +107,7 @@ public class JavaExtensionTest {
     }
 
     @Test
-    public void testStrangeFirstTimeGroovyObjectUsageParamsIssue() throws Exception {
+    public void testStrangeFirstTimeGroovyObjectUsageParamsIssue() {
         TemplateSourceRenderer sr = createSourceRenderer();
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("id",1);

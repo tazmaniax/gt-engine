@@ -15,16 +15,14 @@ import java.util.regex.Pattern;
 // TODO: This parsing code need some refactoring...
 public class GTPreCompiler {
 
-    public static final int maxPlainTextLength = 60000;
-
     public static String generatedPackageName = "play.template2.generated_templates";
 
     private GTInternalTagsCompiler gtInternalTagsCompiler = new GTInternalTagsCompiler();
 
-    private Map<String, String> expression2GroovyMethodLookup = null;
-    private Map<String, String> tagArgs2GroovyMethodLookup = null;
+    private Map<String, String> expression2GroovyMethodLookup;
+    private Map<String, String> tagArgs2GroovyMethodLookup;
 
-    public GTFastTagResolver customFastTagResolver = null;
+    public GTFastTagResolver customFastTagResolver;
 
     private final String varName = "ev";
 
@@ -39,27 +37,27 @@ public class GTPreCompiler {
         public String[] lines;
         public int currentLineNo;
         public int lineOffset;
-        public int nextMethodIndex = 0;
-        public int curlyBracketLevel = 0; // Used to keep track of {} usage inside tags
+        public int nextMethodIndex;
+        public int curlyBracketLevel; // Used to keep track of {} usage inside tags
 
         public SourceContext(GTTemplateLocation templateLocation) {
             this.templateLocation = templateLocation;
         }
 
         public void jprintln(String line) {
-            _out.append( line +"\n");
+            _out.append(line).append("\n");
         }
 
-            public void jprintln(String line, int lineNo) {
-            _out.append( line + "//lineNo:"+(lineNo+1)+"\n");
+        public void jprintln(String line, int lineNo) {
+            _out.append(line).append("//lineNo:").append(lineNo + 1).append("\n");
         }
 
         public void gprintln(String line) {
-            _gout.append( line +"\n");
+            _gout.append(line).append("\n");
         }
 
         public void gprintln(String line, int lineNo) {
-            _gout.append( line + "//lineNo:"+(lineNo+1)+"\n");
+            _gout.append(line).append("//lineNo:").append(lineNo + 1).append("\n");
         }
 
         @Override
@@ -108,8 +106,6 @@ public class GTPreCompiler {
         return compile(src, templateLocation);
     }
 
-    static Pattern alwaysPimpGroovyP = Pattern.compile("^\\s*\\*\\{\\s*alwaysPimpGroovy\\s*\\}\\*\\s*$");
-
     public Output compile(final String src, final GTTemplateLocation templateLocation) {
 
         String[] lines = src.split("\\n");
@@ -120,15 +116,15 @@ public class GTPreCompiler {
 
     protected Output internalCompile(final String[] lines, final GTTemplateLocation templateLocation) {
 
-        expression2GroovyMethodLookup = new HashMap<String, String>();
-        tagArgs2GroovyMethodLookup = new HashMap<String, String>();
+        expression2GroovyMethodLookup = new HashMap<>();
+        tagArgs2GroovyMethodLookup = new HashMap<>();
 
         SourceContext sc = new SourceContext(templateLocation);
         sc.lines = lines;
 
-        GTFragment fragment = null;
+        GTFragment fragment;
 
-        List<GTFragment> rootFragments = new ArrayList<GTFragment>();
+        List<GTFragment> rootFragments = new ArrayList<>();
 
         String templateClassName = generateTemplateClassname( templateLocation.relativePath );
         String templateClassNameGroovy = templateClassName + "G";
@@ -237,15 +233,16 @@ public class GTPreCompiler {
 
     // pattern that find any of the '#/$/& etc we're intercepting. it find the next one - so we know what to look for
     // and start of comment and code-block
-    final static Pattern partsP = Pattern.compile("([#\\$&]|@?@)\\{|(\\*\\{)|(%\\{)");
+    static final Pattern partsP = Pattern.compile("([#\\$&]|@?@)\\{|(\\*\\{)|(%\\{)");
 
     // pattern that finds all kinds of tags
     final Pattern tagBodyP = Pattern.compile("([^\\s]+)(?:\\s*$|\\s+(.+))");
 
-    final static Pattern endCommentP = Pattern.compile("\\}\\*");
-    final static Pattern endScriptP = Pattern.compile("\\}%");
+    static final Pattern endCommentP = Pattern.compile("\\}\\*");
+    static final Pattern endScriptP = Pattern.compile("\\}%");
 
-    final static Pattern findEndBracketOrStringStart = Pattern.compile("(\\}|'|\"|\\{)");
+    static final Pattern findEndBracketOrStringStart = Pattern.compile("(\\}|'|\"|\\{)");
+    
     /**
      * Finds the next '}', which is not inside a string, on the current line.
      * If not found, -1 is returned
@@ -286,8 +283,6 @@ public class GTPreCompiler {
                 continue;
             }
             // We have found a starting string
-            String stringType = what;
-
             // Must find the end of this string
             offset = m.end(1);
             while ( true ) {
@@ -379,7 +374,6 @@ public class GTPreCompiler {
                 int endPos = findEndBracket(currentLine, sc.lineOffset, sc, tagExpressionEtcStartLine);
                 if (endPos >= 0) {
                     // found the end of it.
-                    insideTagExpressionEtc = false;
                     // extract it as a single String
 
                     // Use plainText-finder to extract our script
@@ -432,9 +426,7 @@ public class GTPreCompiler {
 
                     } else if ("$".equals(tagExpressionEtcTypeFound)) {
 
-                        String expression = tagBody;
-
-                        return generateExpressionPrinter(expression, sc, tagExpressionEtcStartLine);
+                        return generateExpressionPrinter(tagBody, sc, tagExpressionEtcStartLine);
 
                     } else if ("@".equals(tagExpressionEtcTypeFound) || "@@".equals(tagExpressionEtcTypeFound)) {
 
@@ -449,10 +441,8 @@ public class GTPreCompiler {
                         return generateRegularActionPrinter(absolute, action, sc, tagExpressionEtcStartLine);
 
                     } else if ("&".equals(tagExpressionEtcTypeFound)) {
-                        String messageArgs = tagBody;
 
-
-                        return generateMessagePrinter(tagExpressionEtcStartLine, messageArgs, sc);
+                        return generateMessagePrinter(tagExpressionEtcStartLine, tagBody, sc);
 
                     }else {
                         throw new GTCompilationExceptionWithSourceInfo("Don't know how to handle type '"+tagExpressionEtcTypeFound+"'", sc.templateLocation, tagExpressionEtcStartLine+1);
@@ -602,7 +592,7 @@ public class GTPreCompiler {
         
         String oneLiner = plainText.replace("\\", "\\\\").replaceAll("\"", "\\\\\"").replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r");
 
-        if ( oneLiner.length() > 0) {
+        if (!oneLiner.isEmpty()) {
             return new GTFragmentCode(startLine, "out.append(\""+oneLiner+"\");");
         } else {
             return null;
@@ -653,7 +643,7 @@ public class GTPreCompiler {
     }
 
     protected GTFragment processTag( SourceContext sc, String tagName, String tagArgString, boolean tagWithoutBody) {
-        final List<GTFragment> body = new ArrayList<GTFragment>();
+        final List<GTFragment> body = new ArrayList<>();
         return processTag(sc, tagName, tagArgString, tagWithoutBody, body);
     }
 
@@ -665,7 +655,7 @@ public class GTPreCompiler {
             return generateTagCode(startLine, tagName, tagArgString, sc, body);
         }
 
-        GTFragment nextFragment = null;
+        GTFragment nextFragment;
         while ( (nextFragment = processNextFragment( sc )) != null ) {
             if ( nextFragment instanceof GTFragmentEndOfMultiLineTag) {
                 GTFragmentEndOfMultiLineTag f = (GTFragmentEndOfMultiLineTag)nextFragment;
@@ -686,7 +676,7 @@ public class GTPreCompiler {
     // returns the java code needed to execute and return the data
     private String generateGroovyCodeForTagArgs(SourceContext sc, String tagName, String tagArgString, int srcLine) {
 
-        if ( tagArgString == null || tagArgString.trim().length() == 0) {
+        if (tagArgString == null || tagArgString.trim().isEmpty()) {
             // just generate code that creates empty map
             return " Map tagArgs = new HashMap();\n";
         }
@@ -792,7 +782,7 @@ public class GTPreCompiler {
 
                     // look for lecacy fastTags
                     GTLegacyFastTagResolver legacyFastTagResolver = getGTLegacyFastTagResolver();
-                    GTLegacyFastTagResolver.LegacyFastTagInfo legacyFastTagInfo = null;
+                    GTLegacyFastTagResolver.LegacyFastTagInfo legacyFastTagInfo;
                     if ( legacyFastTagResolver != null && (legacyFastTagInfo = legacyFastTagResolver.resolveLegacyFastTag(tagName))!=null) {
                         generateLegacyFastTagInvocation(tagName, sc, legacyFastTagInfo, contentMethodName);
                     } else {
@@ -934,7 +924,7 @@ public class GTPreCompiler {
                 sc.jprintln("  " + m.methodName + "();", sc.currentLineNo);
             } else if (f instanceof GTFragmentCode) {
                 GTFragmentCode c = (GTFragmentCode)f;
-                if ( c.code.length() > 0) {
+                if (!c.code.isEmpty()) {
                     sc.jprintln("  " + c.code + "", sc.currentLineNo);
                 }
             } else if(f instanceof GTFragmentScript){

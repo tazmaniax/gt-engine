@@ -12,14 +12,14 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SpecialTests {
 
     @Test
-    public void testTagFileBodyToStringAndInclude() throws Exception{
+    public void testTagFileBodyToStringAndInclude() {
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
 
         assertThat(sr.renderSrc("A#{printBodyInVerbatim}BC#{/printBodyInVerbatim}C", args)).isEqualTo("A\n[from tag. body: BC]\nC");
         assertThat(sr.renderSrc("#{include 'simpleTemplate.txt'/}-A#{printBodyInVerbatim}BC#{/printBodyInVerbatim}C", args)).isEqualTo("[from simpleTemplate]-A\n[from tag. body: BC]\nC");
@@ -28,7 +28,7 @@ public class SpecialTests {
     }
     
     @Test
-    public void testErrorMessage_missingInclude() throws Exception{
+    public void testErrorMessage_missingInclude() {
 
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
@@ -36,7 +36,7 @@ public class SpecialTests {
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
 
         GTRuntimeExceptionWithSourceInfo e=null;
         try {
@@ -64,14 +64,14 @@ public class SpecialTests {
     }
 
     @Test
-    public void testStringsAndTags() throws Exception {
+    public void testStringsAndTags() {
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
 
         assertThat(sr.renderSrc("a#{simpleTag '}'/}b", args)).isEqualTo("a[from tag: }]b");
         assertThat(sr.renderSrc("a#{simpleTag '\\'}'/}b", args)).isEqualTo("a[from tag: '}]b");

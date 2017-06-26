@@ -10,10 +10,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DefInScriptsRemoverTest {
     
     @Test
-    public void testIt() throws Exception{
+    public void testIt() {
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
         
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "xxx");
 
         assertThat(r.renderSrc("%{ a = 'x1'; b = 'y1' }%${a}:${b}", args)).isEqualTo("x1:y1");

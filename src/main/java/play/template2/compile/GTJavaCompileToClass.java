@@ -1,6 +1,7 @@
 package play.template2.compile;
 
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -13,7 +14,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import play.template2.exceptions.GTCompilationException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class GTJavaCompileToClass {
 
     private final ClassLoader parentClassLoader;
 
-    Map<String, Boolean> packagesCache = new HashMap<String, Boolean>();
+    Map<String, Boolean> packagesCache = new HashMap<>();
 
     Map<String, String> settings;
 
@@ -38,7 +38,7 @@ public class GTJavaCompileToClass {
      */
     public GTJavaCompileToClass(ClassLoader parentClassLoader) {
         this.parentClassLoader = parentClassLoader;
-        this.settings = new HashMap<String, String>();
+        this.settings = new HashMap<>();
         this.settings.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
         this.settings.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
         this.settings.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.GENERATE);
@@ -55,16 +55,14 @@ public class GTJavaCompileToClass {
     /**
      * Something to compile
      */
-    final class CompilationUnit implements ICompilationUnit {
+    static final class CompilationUnit implements ICompilationUnit {
 
-        final private String clazzName;
-        final private String fileName;
-        final private char[] typeName;
-        final private char[][] packageName;
-        final private String source;
+        private final String fileName;
+        private final char[] typeName;
+        private final char[][] packageName;
+        private final String source;
 
         CompilationUnit(String pClazzName, String source) {
-            clazzName = pClazzName;
             fileName = pClazzName.replaceAll("\\.", "/") + ".java";//bogus
             int dot = pClazzName.lastIndexOf('.');
             if (dot > 0) {
@@ -103,25 +101,6 @@ public class GTJavaCompileToClass {
     }
 
     /**
-     * Read binary content of a stream (warning does not use on large file !)
-     * @param is The stream to read
-     * @return The binary data
-     */
-    protected byte[] readContent(InputStream is) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            int read = 0;
-            byte[] buffer = new byte[8096];
-            while ((read = is.read(buffer)) > 0) {
-                baos.write(buffer, 0, read);
-            }
-            return baos.toByteArray();
-        } catch(IOException e) {
-            throw new GTCompilationException(e);
-        }
-    }
-
-    /**
          * Compilation result
          */
     public static class MyICompilerRequestor implements ICompilerRequestor {
@@ -147,9 +126,9 @@ public class GTJavaCompileToClass {
             compiledClasses = new CompiledClass[result.getClassFiles().length];
             ClassFile[] clazzFiles = result.getClassFiles();
             for (int i = 0; i < clazzFiles.length; i++) {
-                final ClassFile clazzFile = clazzFiles[i];
-                final char[][] compoundName = clazzFile.getCompoundName();
-                final StringBuffer clazzName = new StringBuffer();
+                ClassFile clazzFile = clazzFiles[i];
+                char[][] compoundName = clazzFile.getCompoundName();
+                StringBuilder clazzName = new StringBuilder();
                 for (int j = 0; j < compoundName.length; j++) {
                     if (j != 0) {
                         clazzName.append('.');
@@ -184,13 +163,13 @@ public class GTJavaCompileToClass {
         IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitOnFirstError();
         IProblemFactory problemFactory = new DefaultProblemFactory(Locale.ENGLISH);
 
-        /**
+        /*
          * To find types ...
          */
         INameEnvironment nameEnvironment = new INameEnvironment() {
 
             @Override public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
-                final StringBuffer result = new StringBuffer();
+                StringBuilder result = new StringBuilder();
                 for (int i = 0; i < compoundTypeName.length; i++) {
                     if (i != 0) {
                         result.append('.');
@@ -201,9 +180,9 @@ public class GTJavaCompileToClass {
             }
 
             @Override public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
-                final StringBuffer result = new StringBuffer();
-                for (int i = 0; i < packageName.length; i++) {
-                    result.append(packageName[i]);
+                StringBuilder result = new StringBuilder();
+                for (char[] aPackageName : packageName) {
+                    result.append(aPackageName);
                     result.append('.');
                 }
                 result.append(typeName);
@@ -222,9 +201,14 @@ public class GTJavaCompileToClass {
                         if (is==null) {
                             return null;
                         }
-                        bytes = readContent(is);
-
-                        is.close();
+                        try {
+                            bytes = IOUtils.toByteArray(is);
+                        } catch(IOException e) {
+                            throw new GTCompilationException(e);
+                        }
+                        finally {
+                            is.close();
+                        }
                     }
 
                     ClassFileReader classFileReader = new ClassFileReader(bytes, name.toCharArray(), true);
@@ -248,7 +232,7 @@ public class GTJavaCompileToClass {
                 sb.append(new String(packageName));
                 String name = sb.toString();
                 if (packagesCache.containsKey(name)) {
-                    return packagesCache.get(name).booleanValue();
+                    return packagesCache.get(name);
                 }
 
                 // does there exist a class with this name?
@@ -273,7 +257,7 @@ public class GTJavaCompileToClass {
         MyICompilerRequestor compilerRequestor = new MyICompilerRequestor();
 
 
-        /**
+        /*
          * The JDT compiler
          */
         org.eclipse.jdt.internal.compiler.Compiler jdtCompiler = new Compiler(nameEnvironment, policy, settings, compilerRequestor, problemFactory) {

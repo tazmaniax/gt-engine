@@ -7,12 +7,7 @@ package play.template2.exceptions;
  * When this exception passes out, we fix the stacktrace so that the first element is in the template itself.
  */
 public class GTTemplateRuntimeException extends GTException {
-
-    public GTTemplateRuntimeException() {
-    }
-
     public GTTemplateRuntimeException(String s) {
         super(s);
     }
-
 }

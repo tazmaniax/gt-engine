@@ -1,6 +1,8 @@
 package play.template2;
 
-public class GTTemplateLocation {
+import java.io.Serializable;
+
+public class GTTemplateLocation implements Serializable {
 
     /**
      * correct relative path in the app-context

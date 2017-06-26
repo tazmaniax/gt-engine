@@ -10,7 +10,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SetGetTest {
 
     @Test
-    public void testSetGet() throws Exception {
+    public void testSetGet() {
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
 
         Map<String, Object> args = new HashMap<String, Object>();

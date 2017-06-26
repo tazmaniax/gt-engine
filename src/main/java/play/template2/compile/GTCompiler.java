@@ -1,17 +1,19 @@
 package play.template2.compile;
 
+import org.apache.commons.io.FileUtils;
 import play.template2.GTTemplateInstanceFactoryLive;
 import play.template2.GTTemplateLocation;
 import play.template2.GTTemplateRepo;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class GTCompiler {
 
-    public static File srcDestFolder = null;
+    public static File srcDestFolder;
     private final ClassLoader parentClassloader;
     private final GTTemplateRepo templateRepo;
     private final GTPreCompilerFactory preCompilerFactory;
@@ -42,21 +44,10 @@ public class GTCompiler {
      * @param file The file to write
      */
     protected static void writeContent(CharSequence content, File file, String encoding) {
-        OutputStream os = null;
         try {
-            os = new FileOutputStream(file);
-            PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(os, encoding));
-            printWriter.println(content);
-            printWriter.flush();
-            os.flush();
-        } catch(IOException e) {
+            FileUtils.write(file, content, encoding);
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if(os != null) os.close();
-            } catch(Exception e) {
-                //
-            }
         }
     }
 
@@ -79,14 +70,15 @@ public class GTCompiler {
         }
 
         // compile groovy
-        GTJavaCompileToClass.CompiledClass[] groovyClasses = groovyClasses = new GTGroovyCompileToClass(parentClassloader).compileGroovySource( templateLocation, precompiled.groovyLineMapper, precompiled.groovyCode);
+        GTJavaCompileToClass.CompiledClass[] groovyClasses = new GTGroovyCompileToClass(parentClassloader)
+            .compileGroovySource( templateLocation, precompiled.groovyLineMapper, precompiled.groovyCode);
 
         // Create Classloader witch includes our groovy class
         GTTemplateInstanceFactoryLive.CL cl = new GTTemplateInstanceFactoryLive.CL(parentClassloader, groovyClasses);
 
         GTJavaCompileToClass.CompiledClass[] compiledJavaClasses = new GTJavaCompileToClass(cl).compile(precompiled.javaClassName, precompiled.javaCode);
 
-        List<GTJavaCompileToClass.CompiledClass> allCompiledClasses = new ArrayList<GTJavaCompileToClass.CompiledClass>();
+        List<GTJavaCompileToClass.CompiledClass> allCompiledClasses = new ArrayList<>();
         allCompiledClasses.addAll( Arrays.asList(compiledJavaClasses) );
         allCompiledClasses.addAll( Arrays.asList(groovyClasses));
 

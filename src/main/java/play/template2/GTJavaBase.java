@@ -18,20 +18,20 @@ import java.util.*;
 
 public abstract class GTJavaBase extends GTRenderingResult {
 
-    public final static String executeNextElseKeyName = "_executeNextElse";
+    public static final String executeNextElseKeyName = "_executeNextElse";
 
     public StringWriter out;
 
-    protected Script groovyScript = null;
+    protected Script groovyScript;
     public Binding binding;
     private final Class<? extends GTGroovyBase> groovyClass;
 
-    protected Map<String, Object> orgArgs = null;
+    protected Map<String, Object> orgArgs;
 
     // if this tag uses #{extends}, then the templatePath we extends is stored here.
-    public GTTemplateLocationReal extendsTemplateLocation = null; // default is not to extend anything...
-    public GTJavaBase extendedTemplate = null;
-    public GTJavaBase extendingTemplate = null; // if someone is extending us, this is the ref to their rendered template - used when dumping their output
+    public GTTemplateLocationReal extendsTemplateLocation; // default is not to extend anything...
+    public GTJavaBase extendedTemplate;
+    public GTJavaBase extendingTemplate; // if someone is extending us, this is the ref to their rendered template - used when dumping their output
 
     // When invoking a template as a tag, the content of the tag / body is stored here..
     public GTContentRenderer contentRenderer;
@@ -40,9 +40,9 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
     public final GTTemplateLocation templateLocation;
 
-    public static ThreadLocal<Map<Object, Object>> layoutData = new ThreadLocal<Map<Object, Object>>();
+    public static final ThreadLocal<Map<Object, Object>> layoutData = new ThreadLocal<>();
 
-    public GTJavaBase(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation ) {
+    protected GTJavaBase(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation) {
         this.groovyClass = groovyClass;
         this.templateLocation = templateLocation;
 
@@ -82,7 +82,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
         // this is the main rendering start of the actual template
 
         // init layout data which should be visible for all templates involved
-        layoutData.set( new HashMap<Object, Object>() );
+        layoutData.set(new HashMap<>() );
 
         // clear outputs in case this is a second rendering
         allOuts.clear();
@@ -115,9 +115,9 @@ public abstract class GTJavaBase extends GTRenderingResult {
         try {
 
             // must store a copy of args, so we can pass the same (unchnaged) args to an extending template.
-            this.orgArgs = new HashMap<String, Object>(orgArgs);
+            this.orgArgs = new HashMap<>(orgArgs);
             // Must create a new map to prevent script-generated variables to leak out
-            final HashMap<String, Object> bindingsMap = new HashMap<String, Object>(orgArgs);
+            final HashMap<String, Object> bindingsMap = new HashMap<>(orgArgs);
             if( tagArgs != null ) {
                 // make them available at scope, but not in orgArgs so they do not get passed along..
                 bindingsMap.putAll(tagArgs);
@@ -247,7 +247,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
         tagTemplate.contentRenderer = contentRenderer;
         // render the tag
         // input should be all org args
-        Map<String, Object> completeTagArgs = new HashMap<String, Object>( );
+        Map<String, Object> completeTagArgs = new HashMap<>();
 
         // and all scoped variables under _caller
         completeTagArgs.put("_caller", this.binding.getVariables());
@@ -282,9 +282,8 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
     // Needs this method to be backward compatible with Play 1,
     // But it is very hard to override when subclassing in Scala,
-    // therfore it calls resolveMessage, which must be implemented.
+    // therefore it calls resolveMessage, which must be implemented.
     public final String messagesGet(Object key, Object... args) {
-
         return resolveMessage(key, args);
     }
 
@@ -312,7 +311,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
         List argsList = (List)_args;
 
-        if ( argsList.size()==0) {
+        if (argsList.isEmpty()) {
             throw new GTTemplateRuntimeException("It looks like you don't have anything in your Message tag");
         }
         Object key = argsList.get(0);
@@ -322,16 +321,14 @@ public abstract class GTJavaBase extends GTRenderingResult {
                     "have you forgotten quotes around the message-key?");
         }
         if (argsList.size() == 1) {
-            String m = messagesGet(key);
-            return m;
+            return messagesGet(key);
         } else {
             // extract args from val
             Object[] args = new Object[argsList.size()-1];
             for( int i=1;i<argsList.size();i++) {
                 args[i-1] = argsList.get(i);
             }
-            String m = messagesGet(key, args);
-            return m;
+            return messagesGet(key, args);
         }
     }
 
@@ -350,19 +347,11 @@ public abstract class GTJavaBase extends GTRenderingResult {
         }
 
         if ( o.getClass().isArray()) {
-            return new Iterable() {
-                public Iterator iterator() {
-                    return new ArrayIterator(o);
-                }
-            }.iterator();
+            return ((Iterable) () -> new ArrayIterator(o)).iterator();
         }
 
         if ( o instanceof Class && ((Class<?>)o).isEnum()) {
-            return new Iterable() {
-                public Iterator iterator() {
-                    return new ArrayIterator(((Class<?>) o).getEnumConstants());
-                }
-            }.iterator();
+            return ((Iterable) () -> new ArrayIterator(((Class<?>) o).getEnumConstants())).iterator();
 
         }
 
@@ -375,13 +364,13 @@ public abstract class GTJavaBase extends GTRenderingResult {
      * @param name
      * @return
      */
-    public GTTemplateLocationReal resolveTemplateLocation ( String name) {
+    public GTTemplateLocationReal resolveTemplateLocation (String name) {
         if (name.startsWith("./")) {
             String ct = this.templateLocation.relativePath;
             if (ct.matches("^/lib/[^/]+/app/views/.*")) {
-                ct = ct.substring(ct.indexOf("/", 5));
+                ct = ct.substring(ct.indexOf('/', 5));
             }
-            ct = ct.substring(0, ct.lastIndexOf("/"));
+            ct = ct.substring(0, ct.lastIndexOf('/'));
             name = ct + name.substring(1);
             return GTFileResolver.impl.getTemplateLocationFromRelativePath(name);
         } else {

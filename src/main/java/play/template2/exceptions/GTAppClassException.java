@@ -1,6 +1,6 @@
 package play.template2.exceptions;
 
-// Thrown when we detect that the exception happend inside a play app class
+// Thrown when we detect that the exception happened inside a play app class
 public class GTAppClassException extends GTException {
     
     public final String className;

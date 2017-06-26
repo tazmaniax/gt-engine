@@ -1,12 +1,10 @@
 package play.template2.compile;
 
 import org.junit.Test;
-import play.template2.*;
+import play.template2.GTTemplateRepoBuilder;
+import play.template2.TemplateSourceRenderer;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,11 +13,11 @@ import static org.fest.assertions.Assertions.assertThat;
 public class GTPreCompilerTest {
 
     @Test
-    public void testNewLineInsideTagsExprEtc() throws Exception {
+    public void testNewLineInsideTagsExprEtc() {
 
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "xxx");
 
         assertThat(r.renderSrc("hello world", args)).isEqualTo("hello world");
@@ -39,11 +37,11 @@ public class GTPreCompilerTest {
 
     // test some errors
     @Test
-    public void testNewLineInsideTagsExprEtcError_1() throws Exception {
+    public void testNewLineInsideTagsExprEtcError_1() {
 
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
         
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "xxx");
 
         GTCompilationExceptionWithSourceInfo ex = null;
@@ -82,11 +80,11 @@ public class GTPreCompilerTest {
     }
 
     @Test
-    public void testBracketsInsideExpr() throws Exception {
+    public void testBracketsInsideExpr() {
 
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("myData", "123");
 
         assertThat(r.renderSrc("a${myData.each{x -> x}}b", args)).isEqualTo("a123b");
