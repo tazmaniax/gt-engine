@@ -1,6 +1,9 @@
 .idea
 .idea_modules
 .gradle
+.classpath
+.project
+.settings
 build
 target
 atlassian-ide-plugin.xml
