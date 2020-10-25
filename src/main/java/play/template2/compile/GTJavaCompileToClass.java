@@ -225,27 +225,46 @@ public class GTJavaCompileToClass {
                 StringBuilder sb = new StringBuilder();
                 if (parentPackageName != null) {
                     for (char[] p : parentPackageName) {
+                    	if (sb.length() > 0) {
+                    		sb.append(".");
+                    	}
                         sb.append(new String(p));
-                        sb.append(".");
                     }
                 }
-                sb.append(new String(packageName));
+//                String parent = sb.toString();
+                String child = new String(packageName);
+                
+                sb.append(".");
+                sb.append(child);
                 String name = sb.toString();
-                if (packagesCache.containsKey(name)) {
-                    return packagesCache.get(name);
+                
+                boolean isPackage = true;
+                
+                // Currently there is no complete package dictionary so a couple of simple
+                // checks hopefully suffices.
+                if (Character.isUpperCase(child.charAt(0))) {
+                    // Typically only a class begins with a capital letter.
+                    isPackage = false;
+                } else if (packagesCache.containsKey(name)) {
+                    // Check the cache if this was a class identified earlier.
+                    isPackage = packagesCache.get(name);
+                } else {
+	                // Does there exist a class with this name?
+	                boolean isClass = false;
+	                try {
+                        parentClassLoader.loadClass(name);
+                        isClass = true;
+                    } catch (Exception e) {
+                        // nop
+                    }
+	
+                    isPackage = !isClass;
+                    packagesCache.put(name, isPackage);
                 }
-
-                // does there exist a class with this name?
-                boolean isClass = false;
-                try {
-                    parentClassLoader.loadClass(name);
-                    isClass = true;
-                } catch (Exception e) {
-                    // nop
-                }
-
-                boolean isPackage = !isClass;
-                packagesCache.put(name, isPackage);
+                
+                // Diagnostic log for reviewing above logic is working correctly. 
+//                System.out.println("Package '" + child + "' " + (isPackage ? "IS A" : "IS NOT A") + " subpackage of '" + parent + "'");
+                
                 return isPackage;
             }
 

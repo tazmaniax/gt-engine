@@ -4,3 +4,4 @@
 build
 target
 atlassian-ide-plugin.xml
+/bin/

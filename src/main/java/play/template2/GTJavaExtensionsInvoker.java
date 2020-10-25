@@ -2,7 +2,7 @@ package play.template2;
 
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MetaMethod;
-import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import play.template2.exceptions.GTRuntimeExceptionForwarder;
 
@@ -199,7 +199,7 @@ public abstract class GTJavaExtensionsInvoker {
             if ( object instanceof Class ) {
                 // try to create an instance of the class
                 try {
-                    Object instance = ((Class)object).newInstance();
+                    Object instance = ((Class)object).getDeclaredConstructor().newInstance();
                     mm = InvokerHelper.getMetaClass(instance).pickMethod(methodName, argsTypes);
                     if ( mm != null ) {
                         // found it

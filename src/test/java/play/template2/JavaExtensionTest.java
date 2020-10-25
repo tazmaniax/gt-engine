@@ -15,7 +15,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class JavaExtensionTest {
 
     private TemplateSourceRenderer createSourceRenderer() {
-        TemplateSourceRenderer sr = new TemplateSourceRenderer( new GTTemplateRepoBuilder()
+        return new TemplateSourceRenderer( new GTTemplateRepoBuilder()
                 .withTemplateRootFolder( new File("src/test/resources/template_root/"))
                 .withGTJavaExtensionMethodResolver(new GTJavaExtensionMethodResolver() {
                     @Override
@@ -29,7 +29,6 @@ public class JavaExtensionTest {
                     }
                 })
                 .build());
-        return sr;
     }
 
     @Test
@@ -87,8 +86,7 @@ public class JavaExtensionTest {
 
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("a", "ab&c");
-        assertThat(sr.renderSrc("${org.apache.commons.lang.StringEscapeUtils.escapeHtml(a)}", args)).isEqualTo("ab&amp;c");
-
+        assertThat(sr.renderSrc("${org.apache.commons.text.StringEscapeUtils.escapeHtml4(a)}", args)).isEqualTo("ab&amp;c");
     }
 
     public static class Foo1 {
