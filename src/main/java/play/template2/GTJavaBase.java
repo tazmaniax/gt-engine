@@ -127,7 +127,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
             // must init our groovy script
 
             //groovyScript = InvokerHelper.createScript(groovyClass, binding);
-            groovyScript = groovyClass.newInstance();
+            groovyScript = groovyClass.getDeclaredConstructor().newInstance();
             groovyScript.setBinding( binding );
 
 
