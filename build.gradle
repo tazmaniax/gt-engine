@@ -15,7 +15,7 @@ defaultTasks 'test', 'jar'
 
 group='com.codeborne'
 archivesBaseName = 'gt-engine'
-version='1.1.1'
+version='1.2'
 
 dependencies {
 //  compile fileTree(dir: "jars", include: '*.jar')
